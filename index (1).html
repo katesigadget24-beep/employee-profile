@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Employee Profile – Kate's Original Gadgets</title>
+<style>
+:root{--blk:#000;--card:rgba(10,10,12,.88);--line:#2c2c2e;--txt:#f5f5f7;--mut:#98989d;--pink:#ff4fa3;--gold:#e6b980;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--txt);
+ background:#d94b92 url("Glamorous_Pink-Gold_Floral_Phone_Showcase.png") center/cover fixed no-repeat;min-height:100vh;
+ padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
+.wrap{max-width:760px;margin:0 auto;padding:18px 14px 30px}
+.card{background:var(--card);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid #ffffff1a;border-radius:24px;padding:20px;margin-bottom:16px;box-shadow:0 20px 50px #0006}
+.logo{display:block;width:100%;max-width:520px;margin:0 auto 6px;border-radius:18px}
+h1{font-size:22px;margin:6px 0 2px;text-align:center;letter-spacing:.2px}
+.sub{color:var(--mut);text-align:center;font-size:14px;margin:0 0 14px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--gold);margin:0 0 12px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:12px;color:var(--mut);margin:0 0 5px 2px}
+label b{color:var(--pink)}
+input,select,textarea{width:100%;background:#1c1c1e;border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:13px 14px;font-size:16px;font-family:inherit;outline:none;appearance:none;-webkit-appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,#98989d 50%),linear-gradient(135deg,#98989d 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 14px) 55%;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
+input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 0 3px #ff4fa333}
+input.err,select.err,textarea.err,.up.err{border-color:#ff453a!important}
+textarea{min-height:76px;resize:vertical}
+input[readonly]{color:var(--gold);font-weight:600}
+.btn{width:100%;border:0;border-radius:16px;padding:15px;font-size:17px;font-weight:600;color:#fff;background:linear-gradient(135deg,#ff4fa3,#c2417d);cursor:pointer;font-family:inherit}
+.btn.alt{background:#2c2c2e;color:var(--txt)}
+.btn.gold{background:linear-gradient(135deg,#f3d3a4,#c99a5b);color:#1a1a1a}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5}
+.menu{display:grid;gap:12px;margin-top:8px}
+.up{border:1.5px dashed #48484a;border-radius:16px;padding:14px;text-align:center;background:#1c1c1e}
+.up input{display:none}
+.up .pick{display:inline-block;background:#2c2c2e;border-radius:12px;padding:10px 16px;font-size:15px;cursor:pointer;margin:2px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.thumbs img{width:92px;height:92px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.selfie-thumb img{width:130px;height:130px;border-radius:50%}
+.hint{font-size:12px;color:var(--mut);margin-top:6px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.back{background:none;border:0;color:var(--pink);font-size:16px;cursor:pointer;padding:6px 0;font-family:inherit}
+.hide{display:none!important}
+.ov{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:14px;text-align:center;padding:20px}
+.spin{width:46px;height:46px;border-radius:50%;border:4px solid #333;border-top-color:var(--pink);animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.okmark{font-size:60px}
+.idbox{font-size:30px;font-weight:700;color:var(--gold);letter-spacing:1px;margin:6px 0 16px}
+.res{background:#1c1c1e;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;gap:12px;align-items:center}
+.res small{color:var(--mut)}
+.det{display:grid;grid-template-columns:140px 1fr;gap:6px 10px;font-size:14px}
+.det div:nth-child(odd){color:var(--mut)}
+.det a{color:var(--pink)}
+footer{text-align:center;color:#fff;font-size:12.5px;text-shadow:0 1px 4px #000a;padding:6px 10px 20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card" id="head">
+    <img class="logo" src="Kate_s_Original_Gadgets_Logo.png" alt="Kate's Original Gadgets">
+    <h1>Employee Profile</h1>
+    <p class="sub" id="status">Connecting…</p>
+  </div>
+
+  <!-- HOME -->
+  <div class="card" id="home">
+    <div class="menu">
+      <button class="btn" onclick="show('reg')">➕ Register Employee</button>
+      <button class="btn gold" onclick="show('find')">🔍 Search Employee</button>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="reg" class="hide">
+    <div class="top"><button class="back" onclick="goHome()">‹ Home</button></div>
+    <form id="frm" autocomplete="off" onsubmit="return false">
+
+      <div class="card"><h2>Personal Information</h2><div class="grid">
+        <div class="full"><label>ID NO.</label><input value="Auto-generated upon saving" readonly></div>
+        <div><label>SURNAME <b>*</b></label><input id="surname" data-req></div>
+        <div><label>FIRST NAME <b>*</b></label><input id="firstName" data-req></div>
+        <div><label>MIDDLE NAME</label><input id="middleName"></div>
+        <div><label>SUFFIX NAME</label><input id="suffix" placeholder="Jr., Sr., III (optional)"></div>
+        <div><label>GENDER <b>*</b></label><select id="gender" data-req></select></div>
+        <div><label>BIRTHDAY <b>*</b></label><input type="date" id="birthday" data-req></div>
+        <div><label>CIVIL STATUS <b>*</b></label><select id="civilStatus" data-req></select></div>
+        <div><label>RELIGION</label><input id="religion"></div>
+        <div><label>CONTACT NO. <b>*</b></label><input id="contactNo" inputmode="tel" placeholder="09XX XXX XXXX" data-req></div>
+        <div><label>EMAIL ADDRESS</label><input id="email" type="email" inputmode="email"></div>
+        <div class="full"><label>HOME ADDRESS <b>*</b></label><textarea id="homeAddress" data-req></textarea></div>
+      </div></div>
+
+      <div class="card"><h2>In Case of Emergency</h2><div class="grid">
+        <div class="full"><label>CONTACT PERSON <b>*</b></label><input id="contactPerson" data-req></div>
+        <div><label>CONTACT NO. <b>*</b></label><input id="contactPersonNo" inputmode="tel" data-req></div>
+        <div><label>RELATIONSHIP <b>*</b></label><input id="relationship" placeholder="e.g. Mother, Spouse" data-req></div>
+      </div></div>
+
+      <div class="card"><h2>Government Numbers</h2><div class="grid">
+        <div><label>SSS NO. / UMID</label><input id="sss" inputmode="numeric"></div>
+        <div><label>PAG-IBIG NO.</label><input id="pagibig" inputmode="numeric"></div>
+        <div><label>PHILHEALTH</label><input id="philhealth" inputmode="numeric"></div>
+        <div><label>TIN NO.</label><input id="tin" inputmode="numeric"></div>
+      </div></div>
+
+      <div class="card"><h2>Employment Details</h2><div class="grid">
+        <div class="full"><label>POSITION <b>*</b></label><input id="position" data-req></div>
+        <div><label>DATE HIRED <b>*</b></label><input type="date" id="dateHired" data-req></div>
+        <div><label>EMPLOYMENT TYPE <b>*</b></label><select id="employmentType" data-req></select></div>
+        <div class="full"><label>DAILY RATE (₱) <b>*</b></label><input id="dailyRate" type="number" inputmode="decimal" step="0.01" min="0" data-req></div>
+      </div></div>
+
+      <div class="card"><h2>Uploads</h2>
+        <label>GOV. ID <b>*</b></label>
+        <div class="up" id="govBox">
+          <label class="pick" for="govId">📎 Upload ID (front / back)</label>
+          <input type="file" id="govId" accept="image/*" multiple>
+          <div class="thumbs" id="govThumbs"></div>
+          <div class="hint">Up to 2 photos</div>
+        </div>
+        <div style="height:14px"></div>
+        <label>Upload Your Recent Selfie / Employee Profile Photo <b>*</b></label>
+        <div class="up" id="selfBox">
+          <label class="pick" for="selfieCam">📸 Take Selfie</label>
+          <label class="pick" for="selfieUp">🖼️ Choose Photo</label>
+          <input type="file" id="selfieCam" accept="image/*" capture="user">
+          <input type="file" id="selfieUp" accept="image/*">
+          <div class="thumbs selfie-thumb" id="selfThumbs"></div>
+        </div>
+      </div>
+
+      <button class="btn" id="saveBtn" type="button" onclick="submitForm()">Save Employee</button>
+    </form>
+  </div>
+
+  <!-- SEARCH -->
+  <div id="find" class="hide">
+    <div class="top"><button class="back" onclick="goHome()">‹ Home</button></div>
+    <div class="card">
+      <h2>Search Employee</h2>
+      <input id="q" placeholder="Name or ID no." onkeydown="if(event.key==='Enter')doSearch()">
+      <div style="height:12px"></div>
+      <button class="btn gold" onclick="doSearch()">Search</button>
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <footer>Created by JB Digital Solutions, © 2026 All rights reserved</footer>
+</div>
+
+<div class="ov hide" id="busy"><div class="spin"></div><div id="busyTxt">Saving…</div></div>
+<div class="ov hide" id="done"><div class="card" style="max-width:380px;width:100%">
+  <div class="okmark">✅</div><h1>Employee Registered</h1><div class="idbox" id="newId"></div>
+  <button class="btn" onclick="newOne()">Register Another</button>
+  <div style="height:10px"></div><button class="btn alt" onclick="goHome()">Home</button></div></div>
+
+<script>
+/* ===== PASTE YOUR APPS SCRIPT WEB APP /exec URL HERE ===== */
+const API_URL = "PASTE_YOUR_EXEC_URL_HERE";
+
+const $ = id => document.getElementById(id);
+let govFiles = [], selfieFile = null;
+
+function show(id){ ['home','reg','find'].forEach(x=>$(x).classList.toggle('hide',x!==id)); window.scrollTo(0,0); }
+function goHome(){ $('done').classList.add('hide'); show('home'); }
+
+async function api(params){
+  const r = await fetch(API_URL+'?'+new URLSearchParams(params));
+  return r.json();
+}
+
+async function init(){
+  if(API_URL.startsWith('PASTE')){ $('status').textContent='Add your Apps Script URL in index.html'; return; }
+  try{
+    const r = await api({action:'setup'});
+    if(!r.ok) throw new Error(r.error);
+    fill('gender',r.lists.gender); fill('civilStatus',r.lists.civilStatus); fill('employmentType',r.lists.employmentType);
+    $('status').textContent='Register and manage employee records';
+  }catch(e){ $('status').textContent='Cannot connect to the spreadsheet. Check your URL.'; }
+}
+function fill(id,list){
+  $(id).innerHTML='<option value="">Select…</option>'+list.map(v=>`<option>${esc(v)}</option>`).join('');
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ---- image handling: resize + compress before upload ---- */
+function compress(file,max=1280,q=.8){
+  return new Promise((res,rej)=>{
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let {width:w,height:h}=img; const s=Math.min(1,max/Math.max(w,h)); w=Math.round(w*s); h=Math.round(h*s);
+      const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+      const data=c.toDataURL('image/jpeg',q); URL.revokeObjectURL(url);
+      res({type:'image/jpeg',data:data.split(',')[1],preview:data});
+    };
+    img.onerror=()=>rej(new Error('Could not read image'));
+    img.src=url;
+  });
+}
+$('govId').addEventListener('change',async e=>{
+  const files=[...e.target.files].slice(0,2);
+  govFiles=[]; $('govThumbs').innerHTML='';
+  for(const f of files){ const c=await compress(f); govFiles.push(c); $('govThumbs').innerHTML+=`<img src="${c.preview}">`; }
+  $('govBox').classList.remove('err');
+});
+async function setSelfie(e){
+  const f=e.target.files[0]; if(!f) return;
+  selfieFile=await compress(f,900,.8);
+  $('selfThumbs').innerHTML=`<img src="${selfieFile.preview}">`; $('selfBox').classList.remove('err');
+}
+$('selfieCam').addEventListener('change',setSelfie);
+$('selfieUp').addEventListener('change',setSelfie);
+
+/* ---- submit ---- */
+const FIELDS=['surname','firstName','middleName','suffix','gender','birthday','civilStatus','religion','contactNo','email','homeAddress',
+ 'contactPerson','contactPersonNo','relationship','sss','pagibig','philhealth','tin','position','dateHired','employmentType','dailyRate'];
+
+async function submitForm(){
+  let bad=false;
+  document.querySelectorAll('[data-req]').forEach(el=>{ const e=!el.value.trim(); el.classList.toggle('err',e); if(e) bad=true; });
+  $('govBox').classList.toggle('err',!govFiles.length); $('selfBox').classList.toggle('err',!selfieFile);
+  if(!govFiles.length||!selfieFile) bad=true;
+  if(bad){ alert('Please complete all required fields (*) and upload your ID and selfie.'); return; }
+
+  const fields={}; FIELDS.forEach(k=>fields[k]=$(k).value.trim());
+  $('busyTxt').textContent='Saving… please wait'; $('busy').classList.remove('hide'); $('saveBtn').disabled=true;
+  try{
+    const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'register',fields,
+        govId:govFiles.map(f=>({type:f.type,data:f.data})),selfie:{type:selfieFile.type,data:selfieFile.data}})});
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'Save failed');
+    $('newId').textContent=j.id; $('done').classList.remove('hide');
+  }catch(e){ alert('Could not save: '+e.message); }
+  $('busy').classList.add('hide'); $('saveBtn').disabled=false;
+}
+function newOne(){
+  $('frm').reset(); govFiles=[]; selfieFile=null; $('govThumbs').innerHTML=''; $('selfThumbs').innerHTML='';
+  $('done').classList.add('hide'); show('reg');
+}
+
+/* ---- search ---- */
+const LABELS=['ID NO.','SURNAME','FIRST NAME','MIDDLE NAME','SUFFIX','GENDER','BIRTHDAY','CIVIL STATUS','RELIGION','CONTACT NO.','EMAIL','HOME ADDRESS',
+ 'CONTACT PERSON','EMERGENCY CONTACT NO.','RELATIONSHIP','SSS / UMID','PAG-IBIG','PHILHEALTH','TIN','POSITION','DATE HIRED','EMPLOYMENT TYPE','DAILY RATE','GOV. ID','PHOTO'];
+async function doSearch(){
+  const q=$('q').value.trim(); if(!q) return;
+  $('results').innerHTML='<div class="card">Searching…</div>';
+  try{
+    const r=await api({action:'search',q}); if(!r.ok) throw new Error(r.error);
+    if(!r.rows.length){ $('results').innerHTML='<div class="card">No employee found.</div>'; return; }
+    window._rows=r.rows;
+    $('results').innerHTML=r.rows.map((x,i)=>`<div class="res" onclick="detail(${i})"><div><b>${esc(x[1])}, ${esc(x[2])} ${esc(x[3])}</b><br><small>${esc(x[0])} · ${esc(x[19])}</small></div></div>`).join('');
+  }catch(e){ $('results').innerHTML='<div class="card">Error: '+esc(e.message)+'</div>'; }
+}
+function detail(i){
+  const x=window._rows[i];
+  const links=v=>String(v).split('\n').filter(Boolean).map((u,k)=>`<a href="${esc(u)}" target="_blank" rel="noopener">View ${k+1}</a>`).join(' · ');
+  $('results').innerHTML=`<div class="card"><h2>${esc(x[0])}</h2><div class="det">`+
+    LABELS.map((l,k)=>`<div>${l}</div><div>${k>=23?links(x[k]):esc(x[k])}</div>`).join('')+
+    `</div><div style="height:14px"></div><button class="btn alt" onclick="doSearch()">‹ Back to results</button></div>`;
+}
+init();
+</script>
+</body>
+</html>
