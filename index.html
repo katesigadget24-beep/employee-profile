@@ -170,7 +170,8 @@ function goHome(){ $('done').classList.add('hide'); show('home'); }
 
 async function api(params){
   const r = await fetch(API_URL+'?'+new URLSearchParams(params));
-  return r.json();
+  const t = await r.text();
+  try{ return JSON.parse(t); }catch(x){ throw new Error('URL did not return data - deployment access must be "Anyone" and the URL must end in /exec'); }
 }
 
 async function init(){
@@ -180,7 +181,7 @@ async function init(){
     if(!r.ok) throw new Error(r.error);
     fill('gender',r.lists.gender); fill('civilStatus',r.lists.civilStatus); fill('employmentType',r.lists.employmentType);
     $('status').textContent='Register and manage employee records';
-  }catch(e){ $('status').textContent='Cannot connect to the spreadsheet. Check your URL.'; }
+  }catch(e){ $('status').textContent='Cannot connect: '+(e.message||e)+' (open your /exec URL?action=setup in a browser to test)'; }
 }
 function fill(id,list){
   $(id).innerHTML='<option value="">Select…</option>'+list.map(v=>`<option>${esc(v)}</option>`).join('');
