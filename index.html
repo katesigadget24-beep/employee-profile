@@ -40,6 +40,7 @@ input[readonly]{color:var(--gold);font-weight:600}
 .thumbs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
 .thumbs img{width:92px;height:92px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 .selfie-thumb img{width:130px;height:130px;border-radius:50%}
+.warn{background:#3a1210;border:1px solid #ff453a;color:#ffb4ae;border-radius:12px;padding:10px 12px;font-size:14px;margin-top:10px;text-align:left}
 .hint{font-size:12px;color:var(--mut);margin-top:6px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .back{background:none;border:0;color:var(--pink);font-size:16px;cursor:pointer;padding:6px 0;font-family:inherit}
@@ -123,13 +124,13 @@ footer{text-align:center;color:#fff;font-size:12.5px;text-shadow:0 1px 4px #000a
           <div class="hint">Up to 2 photos</div>
         </div>
         <div style="height:14px"></div>
-        <label>Upload Your Recent Selfie / Employee Profile Photo <b>*</b></label>
+        <label>Take Your Recent Selfie / Employee Profile Photo <b>*</b></label>
         <div class="up" id="selfBox">
           <label class="pick" for="selfieCam">📸 Take Selfie</label>
-          <label class="pick" for="selfieUp">🖼️ Choose Photo</label>
           <input type="file" id="selfieCam" accept="image/*" capture="user">
-          <input type="file" id="selfieUp" accept="image/*">
           <div class="thumbs selfie-thumb" id="selfThumbs"></div>
+          <div class="warn hide" id="selfWarn"></div>
+          <div class="hint">📌 Face the light, remove your cap/sunglasses, and make sure your face is clear and well-lit. Dark or blurry photos will not be accepted.</div>
         </div>
       </div>
 
@@ -195,8 +196,11 @@ function compress(file,max=1280,q=.8){
     img.onload=()=>{
       let {width:w,height:h}=img; const s=Math.min(1,max/Math.max(w,h)); w=Math.round(w*s); h=Math.round(h*s);
       const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+      const t=document.createElement('canvas'); t.width=64; t.height=64; const tx=t.getContext('2d'); tx.drawImage(img,0,0,64,64);
+      const px=tx.getImageData(0,0,64,64).data; let sum=0; for(let i=0;i<px.length;i+=4){ sum+=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2]; }
+      const bright=sum/(px.length/4);
       const data=c.toDataURL('image/jpeg',q); URL.revokeObjectURL(url);
-      res({type:'image/jpeg',data:data.split(',')[1],preview:data});
+      res({type:'image/jpeg',data:data.split(',')[1],preview:data,bright});
     };
     img.onerror=()=>rej(new Error('Could not read image'));
     img.src=url;
@@ -210,11 +214,23 @@ $('govId').addEventListener('change',async e=>{
 });
 async function setSelfie(e){
   const f=e.target.files[0]; if(!f) return;
-  selfieFile=await compress(f,900,.8);
-  $('selfThumbs').innerHTML=`<img src="${selfieFile.preview}">`; $('selfBox').classList.remove('err');
+  const c=await compress(f,900,.8);
+  e.target.value='';
+  const w=$('selfWarn');
+  if(c.bright<70){
+    selfieFile=null; $('selfThumbs').innerHTML=''; w.classList.remove('hide');
+    w.textContent='⚠️ Your photo is too dark. Please move to a brighter place, face the light, and take the selfie again.';
+    $('selfBox').classList.add('err'); return;
+  }
+  if(c.bright>230){
+    selfieFile=null; $('selfThumbs').innerHTML=''; w.classList.remove('hide');
+    w.textContent='⚠️ Your photo is too bright or washed out. Avoid strong light behind or on your face and take the selfie again.';
+    $('selfBox').classList.add('err'); return;
+  }
+  w.classList.add('hide'); selfieFile=c;
+  $('selfThumbs').innerHTML=`<img src="${c.preview}">`; $('selfBox').classList.remove('err');
 }
 $('selfieCam').addEventListener('change',setSelfie);
-$('selfieUp').addEventListener('change',setSelfie);
 
 /* ---- submit ---- */
 const FIELDS=['surname','firstName','middleName','suffix','gender','birthday','civilStatus','religion','contactNo','email','homeAddress',
@@ -240,7 +256,7 @@ async function submitForm(){
   $('busy').classList.add('hide'); $('saveBtn').disabled=false;
 }
 function newOne(){
-  $('frm').reset(); govFiles=[]; selfieFile=null; $('govThumbs').innerHTML=''; $('selfThumbs').innerHTML='';
+  $('frm').reset(); govFiles=[]; selfieFile=null; $('govThumbs').innerHTML=''; $('selfThumbs').innerHTML=''; $('selfWarn').classList.add('hide');
   $('done').classList.add('hide'); show('reg');
 }
 
