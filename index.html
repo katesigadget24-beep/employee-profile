@@ -55,7 +55,9 @@ input[readonly]{color:var(--gold);font-weight:600}
 .det{display:grid;grid-template-columns:140px 1fr;gap:6px 10px;font-size:14px}
 .det div:nth-child(odd){color:var(--mut)}
 .det a{color:var(--pink)}
-footer{text-align:center;color:#fff;font-size:12.5px;text-shadow:0 1px 4px #000a;padding:6px 10px 20px}
+.foot{text-align:center;color:var(--mut);font-size:14px;line-height:1.5;padding:16px 20px;margin-top:6px}
+.foot img{width:64px;height:64px;object-fit:contain;background:#fff;border-radius:14px;display:block;margin:0 auto 8px}
+.foot b{color:#fff}
 </style>
 </head>
 <body>
@@ -150,7 +152,11 @@ footer{text-align:center;color:#fff;font-size:12.5px;text-shadow:0 1px 4px #000a
     <div id="results"></div>
   </div>
 
-  <footer>Created by JB Digital Solutions, © 2026 All rights reserved</footer>
+  <footer class="card foot">
+    <img src="Glossy_JB_Digital_Solutions_Logo.png" alt="JB Digital Solutions">
+    <div>Created by <b>JB Digital Solutions</b></div>
+    <div>© 2026 All rights reserved.</div>
+  </footer>
 </div>
 
 <div class="ov hide" id="busy"><div class="spin"></div><div id="busyTxt">Saving…</div></div>
