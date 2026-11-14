@@ -41,6 +41,12 @@ input[readonly]{color:var(--gold);font-weight:600}
 .thumbs img{width:92px;height:92px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 .selfie-thumb img{width:130px;height:130px;border-radius:50%}
 .warn{background:#3a1210;border:1px solid #ff453a;color:#ffb4ae;border-radius:12px;padding:10px 12px;font-size:14px;margin-top:10px;text-align:left}
+.camwrap{border-radius:18px;overflow:hidden;background:#000;aspect-ratio:3/4;display:flex}
+.camwrap video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.photo{width:100%;max-width:300px;border-radius:18px;display:block;margin:0 auto 14px;border:1px solid var(--line)}
+.gimgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
+.gimgs img{width:100%;border-radius:12px;border:1px solid var(--line)}
+.avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#2c2c2e;flex:none}
 .hint{font-size:12px;color:var(--mut);margin-top:6px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .back{background:none;border:0;color:var(--pink);font-size:16px;cursor:pointer;padding:6px 0;font-family:inherit}
@@ -128,11 +134,10 @@ input[readonly]{color:var(--gold);font-weight:600}
         <div style="height:14px"></div>
         <label>Take Your Recent Selfie / Employee Profile Photo <b>*</b></label>
         <div class="up" id="selfBox">
-          <label class="pick" for="selfieCam">📸 Take Selfie</label>
-          <input type="file" id="selfieCam" accept="image/*" capture="user">
+          <label class="pick" id="camBtn" onclick="openCam()">📸 Open Camera</label>
           <div class="thumbs selfie-thumb" id="selfThumbs"></div>
           <div class="warn hide" id="selfWarn"></div>
-          <div class="hint">📌 Face the light, remove your cap/sunglasses, and make sure your face is clear and well-lit. Dark or blurry photos will not be accepted.</div>
+          <div class="hint">📌 Face the light, remove your cap/sunglasses, and make sure your face is clear and well-lit. Dark or blurry photos will not be accepted. Photos from the gallery or file upload are not allowed - the selfie must be taken live.</div>
         </div>
       </div>
 
@@ -159,6 +164,15 @@ input[readonly]{color:var(--gold);font-weight:600}
   </footer>
 </div>
 
+<div class="ov hide" id="camov">
+  <div class="card" style="max-width:420px;width:100%">
+    <div class="camwrap"><video id="vid" autoplay playsinline muted></video></div>
+    <div class="hint" style="text-align:center;margin:8px 0 12px">Face the light and keep your face centered</div>
+    <button class="btn" onclick="snap()">📸 Capture</button>
+    <div style="height:10px"></div>
+    <button class="btn alt" onclick="closeCam()">Cancel</button>
+  </div>
+</div>
 <div class="ov hide" id="busy"><div class="spin"></div><div id="busyTxt">Saving…</div></div>
 <div class="ov hide" id="done"><div class="card" style="max-width:380px;width:100%">
   <div class="okmark">✅</div><h1>Employee Registered</h1><div class="idbox" id="newId"></div>
@@ -218,25 +232,44 @@ $('govId').addEventListener('change',async e=>{
   for(const f of files){ const c=await compress(f); govFiles.push(c); $('govThumbs').innerHTML+=`<img src="${c.preview}">`; }
   $('govBox').classList.remove('err');
 });
-async function setSelfie(e){
-  const f=e.target.files[0]; if(!f) return;
-  const c=await compress(f,900,.8);
-  e.target.value='';
-  const w=$('selfWarn');
-  if(c.bright<70){
-    selfieFile=null; $('selfThumbs').innerHTML=''; w.classList.remove('hide');
-    w.textContent='⚠️ Your photo is too dark. Please move to a brighter place, face the light, and take the selfie again.';
-    $('selfBox').classList.add('err'); return;
-  }
-  if(c.bright>230){
-    selfieFile=null; $('selfThumbs').innerHTML=''; w.classList.remove('hide');
-    w.textContent='⚠️ Your photo is too bright or washed out. Avoid strong light behind or on your face and take the selfie again.';
-    $('selfBox').classList.add('err'); return;
-  }
-  w.classList.add('hide'); selfieFile=c;
-  $('selfThumbs').innerHTML=`<img src="${c.preview}">`; $('selfBox').classList.remove('err');
+let camStream=null;
+async function openCam(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ alert('Camera is not available on this device/browser. Please use a phone with a camera and open the site over HTTPS.'); return; }
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:1280}},audio:false});
+    $('vid').srcObject=camStream; $('camov').classList.remove('hide');
+  }catch(e){ alert('Please allow camera access to take your selfie. (Allow the camera in your browser settings, then try again.)'); }
 }
-$('selfieCam').addEventListener('change',setSelfie);
+function closeCam(){
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  $('vid').srcObject=null; $('camov').classList.add('hide');
+}
+function snap(){
+  const v=$('vid'); if(!v.videoWidth){ return; }
+  const s=Math.min(1,900/Math.max(v.videoWidth,v.videoHeight));
+  const w=Math.round(v.videoWidth*s), h=Math.round(v.videoHeight*s);
+  const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(v,0,0,w,h);
+  const t=document.createElement('canvas'); t.width=64; t.height=64; const tx=t.getContext('2d'); tx.drawImage(c,0,0,64,64);
+  const px=tx.getImageData(0,0,64,64).data; let sum=0; for(let i=0;i<px.length;i+=4){ sum+=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2]; }
+  const bright=sum/(px.length/4);
+  closeCam();
+  const wn=$('selfWarn');
+  if(bright<70){
+    selfieFile=null; $('selfThumbs').innerHTML=''; wn.classList.remove('hide');
+    wn.textContent='⚠️ Your photo is too dark. Please move to a brighter place, face the light, and take the selfie again.';
+    $('selfBox').classList.add('err'); return;
+  }
+  if(bright>230){
+    selfieFile=null; $('selfThumbs').innerHTML=''; wn.classList.remove('hide');
+    wn.textContent='⚠️ Your photo is too bright or washed out. Avoid strong light behind or on your face and take the selfie again.';
+    $('selfBox').classList.add('err'); return;
+  }
+  const data=c.toDataURL('image/jpeg',.8);
+  selfieFile={type:'image/jpeg',data:data.split(',')[1],preview:data};
+  wn.classList.add('hide');
+  $('selfThumbs').innerHTML=`<img src="${data}">`; $('selfBox').classList.remove('err');
+  $('camBtn').textContent='🔄 Retake Selfie';
+}
 
 /* ---- submit ---- */
 const FIELDS=['surname','firstName','middleName','suffix','gender','birthday','civilStatus','religion','contactNo','email','homeAddress',
@@ -262,13 +295,16 @@ async function submitForm(){
   $('busy').classList.add('hide'); $('saveBtn').disabled=false;
 }
 function newOne(){
-  $('frm').reset(); govFiles=[]; selfieFile=null; $('govThumbs').innerHTML=''; $('selfThumbs').innerHTML=''; $('selfWarn').classList.add('hide');
+  $('frm').reset(); govFiles=[]; selfieFile=null; $('govThumbs').innerHTML=''; $('selfThumbs').innerHTML=''; $('selfWarn').classList.add('hide'); $('camBtn').textContent='📸 Open Camera';
   $('done').classList.add('hide'); show('reg');
 }
 
 /* ---- search ---- */
 const LABELS=['ID NO.','SURNAME','FIRST NAME','MIDDLE NAME','SUFFIX','GENDER','BIRTHDAY','CIVIL STATUS','RELIGION','CONTACT NO.','EMAIL','HOME ADDRESS',
  'CONTACT PERSON','EMERGENCY CONTACT NO.','RELATIONSHIP','SSS / UMID','PAG-IBIG','PHILHEALTH','TIN','POSITION','DATE HIRED','EMPLOYMENT TYPE','DAILY RATE','GOV. ID','PHOTO'];
+function fid(u){ const m=String(u).match(/[-\w]{25,}/); return m?m[0]:''; }
+function thumb(u,sz){ const id=fid(u); return id?`https://drive.google.com/thumbnail?id=${id}&sz=w${sz}`:''; }
+function fallback(img){ img.outerHTML='<div class="hint">Image could not be displayed</div>'; }
 async function doSearch(){
   const q=$('q').value.trim(); if(!q) return;
   $('results').innerHTML='<div class="card">Searching…</div>';
@@ -276,15 +312,24 @@ async function doSearch(){
     const r=await api({action:'search',q}); if(!r.ok) throw new Error(r.error);
     if(!r.rows.length){ $('results').innerHTML='<div class="card">No employee found.</div>'; return; }
     window._rows=r.rows;
-    $('results').innerHTML=r.rows.map((x,i)=>`<div class="res" onclick="detail(${i})"><div><b>${esc(x[1])}, ${esc(x[2])} ${esc(x[3])}</b><br><small>${esc(x[0])} · ${esc(x[19])}</small></div></div>`).join('');
+    $('results').innerHTML=r.rows.map((x,i)=>{
+      const t=thumb(x[24],200);
+      return `<div class="res" onclick="detail(${i})">${t?`<img class="avatar" src="${t}" alt="">`:'<div class="avatar"></div>'}<div><b>${esc(x[1])}, ${esc(x[2])} ${esc(x[3])}</b><br><small>${esc(x[0])} · ${esc(x[19])}</small></div></div>`;
+    }).join('');
   }catch(e){ $('results').innerHTML='<div class="card">Error: '+esc(e.message)+'</div>'; }
 }
 function detail(i){
   const x=window._rows[i];
-  const links=v=>String(v).split('\n').filter(Boolean).map((u,k)=>`<a href="${esc(u)}" target="_blank" rel="noopener">View ${k+1}</a>`).join(' · ');
-  $('results').innerHTML=`<div class="card"><h2>${esc(x[0])}</h2><div class="det">`+
-    LABELS.map((l,k)=>`<div>${l}</div><div>${k>=23?links(x[k]):esc(x[k])}</div>`).join('')+
-    `</div><div style="height:14px"></div><button class="btn alt" onclick="doSearch()">‹ Back to results</button></div>`;
+  const links=v=>String(v).split('\n').filter(Boolean).map((u,k)=>`<a href="${esc(u)}" target="_blank" rel="noopener">Open ${k+1}</a>`).join(' · ');
+  const selfie=thumb(x[24],600);
+  const gov=String(x[23]).split('\n').filter(Boolean).map(u=>thumb(u,800)).filter(Boolean);
+  $('results').innerHTML=`<div class="card"><h2>${esc(x[0])}</h2>`+
+    (selfie?`<img class="photo" src="${selfie}" alt="Employee photo" onerror="fallback(this)">`:'')+
+    `<div class="det">`+LABELS.slice(0,23).map((l,k)=>`<div>${l}</div><div>${esc(x[k])}</div>`).join('')+
+    `<div>GOV. ID</div><div>${links(x[23])}</div></div>`+
+    (gov.length?`<h2 style="margin-top:16px">Government ID</h2><div class="gimgs">${gov.map(g=>`<img src="${g}" alt="Gov ID" onerror="fallback(this)">`).join('')}</div>`:'')+
+    `<div style="height:8px"></div><button class="btn alt" onclick="doSearch()">‹ Back to results</button></div>`;
+  window.scrollTo(0,0);
 }
 init();
 </script>
