@@ -46,7 +46,20 @@ input[readonly]{color:var(--gold);font-weight:600}
 .photo{width:100%;max-width:300px;border-radius:18px;display:block;margin:0 auto 14px;border:1px solid var(--line)}
 .gimgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
 .gimgs img{width:100%;border-radius:12px;border:1px solid var(--line)}
-.avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#2c2c2e;flex:none}
+.avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#2c2c2e;flex:none;border:2px solid #d9a766;box-shadow:0 0 0 2px #ff4fa388,0 0 14px #ff4fa355}
+.frame{position:relative;width:min(300px,100%);margin:8px auto 10px;padding:9px;border-radius:30px;
+ background:linear-gradient(135deg,#fbeacb 0%,#d9a766 22%,#ff4fa3 50%,#f3d3a4 75%,#b7814a 100%);
+ box-shadow:0 0 0 1px #ffffff55,0 0 34px #ff4fa366,0 14px 30px #000a}
+.frame-in{background:#000;border-radius:22px;padding:5px;position:relative}
+.frame-in img{display:block;width:100%;aspect-ratio:1/1.12;object-fit:cover;border-radius:18px}
+.frame i{position:absolute;font-style:normal;color:#fff3d6;font-size:20px;text-shadow:0 0 8px #ffd48a,0 0 14px #ff4fa3;line-height:1}
+.frame i:nth-of-type(1){top:-9px;left:-6px}.frame i:nth-of-type(2){top:-9px;right:-6px}
+.frame i:nth-of-type(3){bottom:-9px;left:-6px}.frame i:nth-of-type(4){bottom:-9px;right:-6px}
+.plate{text-align:center;margin:0 auto 18px;max-width:300px}
+.plate .nm{font-size:20px;font-weight:700;letter-spacing:.4px;background:linear-gradient(90deg,#f7dfb4,#ff7ab8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.plate .ps{font-size:13px;color:var(--mut);margin-top:2px;letter-spacing:.8px;text-transform:uppercase}
+.plate .ln{height:2px;width:120px;margin:10px auto 0;border-radius:2px;background:linear-gradient(90deg,transparent,#d9a766,#ff4fa3,#d9a766,transparent)}
+.gimgs img{border:2px solid #d9a76688;padding:3px;background:#000}
 .hint{font-size:12px;color:var(--mut);margin-top:6px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .back{background:none;border:0;color:var(--pink);font-size:16px;cursor:pointer;padding:6px 0;font-family:inherit}
@@ -325,7 +338,7 @@ function detail(i){
   const selfie=thumb(x[25],600);
   const gov=String(x[24]).split('\n').filter(Boolean).map(u=>thumb(u,800)).filter(Boolean);
   $('results').innerHTML=`<div class="card"><h2>${esc(x[0])}</h2>`+
-    (selfie?`<img class="photo" src="${selfie}" alt="Employee photo" onerror="fallback(this)">`:'')+
+    (selfie?`<div class="frame"><i>✦</i><i>✦</i><i>✦</i><i>✦</i><div class="frame-in"><img src="${selfie}" alt="Employee photo" onerror="fallback(this)"></div></div><div class="plate"><div class="nm">${esc(x[2])} ${esc(x[1])}</div><div class="ps">${esc(x[19])}${x[23]?' · '+esc(x[23]):''}</div><div class="ln"></div></div>`:'')+
     `<div class="det">`+LABELS.slice(0,24).map((l,k)=>`<div>${l}</div><div>${esc(x[k])}</div>`).join('')+
     `<div>GOV. ID</div><div>${links(x[24])}</div></div>`+
     (gov.length?`<h2 style="margin-top:16px">Government ID</h2><div class="gimgs">${gov.map(g=>`<img src="${g}" alt="Gov ID" onerror="fallback(this)">`).join('')}</div>`:'')+
