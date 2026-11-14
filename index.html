@@ -120,7 +120,8 @@ input[readonly]{color:var(--gold);font-weight:600}
         <div class="full"><label>POSITION <b>*</b></label><input id="position" data-req></div>
         <div><label>DATE HIRED <b>*</b></label><input type="date" id="dateHired" data-req></div>
         <div><label>EMPLOYMENT TYPE <b>*</b></label><select id="employmentType" data-req></select></div>
-        <div class="full"><label>DAILY RATE (₱) <b>*</b></label><input id="dailyRate" type="number" inputmode="decimal" step="0.01" min="0" data-req></div>
+        <div><label>DAILY RATE (₱) <b>*</b></label><input id="dailyRate" type="number" inputmode="decimal" step="0.01" min="0" data-req></div>
+        <div><label>ASSIGNED BRANCH <b>*</b></label><select id="assignedBranch" data-req></select></div>
       </div></div>
 
       <div class="card"><h2>Uploads</h2>
@@ -200,7 +201,7 @@ async function init(){
   try{
     const r = await api({action:'setup'});
     if(!r.ok) throw new Error(r.error);
-    fill('gender',r.lists.gender); fill('civilStatus',r.lists.civilStatus); fill('employmentType',r.lists.employmentType);
+    fill('gender',r.lists.gender); fill('civilStatus',r.lists.civilStatus); fill('employmentType',r.lists.employmentType); fill('assignedBranch',r.lists.branch);
     $('status').textContent='Register and manage employee records';
   }catch(e){ $('status').textContent='Cannot connect: '+(e.message||e)+' (open your /exec URL?action=setup in a browser to test)'; }
 }
@@ -273,7 +274,7 @@ function snap(){
 
 /* ---- submit ---- */
 const FIELDS=['surname','firstName','middleName','suffix','gender','birthday','civilStatus','religion','contactNo','email','homeAddress',
- 'contactPerson','contactPersonNo','relationship','sss','pagibig','philhealth','tin','position','dateHired','employmentType','dailyRate'];
+ 'contactPerson','contactPersonNo','relationship','sss','pagibig','philhealth','tin','position','dateHired','employmentType','dailyRate','assignedBranch'];
 
 async function submitForm(){
   let bad=false;
@@ -301,7 +302,7 @@ function newOne(){
 
 /* ---- search ---- */
 const LABELS=['ID NO.','SURNAME','FIRST NAME','MIDDLE NAME','SUFFIX','GENDER','BIRTHDAY','CIVIL STATUS','RELIGION','CONTACT NO.','EMAIL','HOME ADDRESS',
- 'CONTACT PERSON','EMERGENCY CONTACT NO.','RELATIONSHIP','SSS / UMID','PAG-IBIG','PHILHEALTH','TIN','POSITION','DATE HIRED','EMPLOYMENT TYPE','DAILY RATE','GOV. ID','PHOTO'];
+ 'CONTACT PERSON','EMERGENCY CONTACT NO.','RELATIONSHIP','SSS / UMID','PAG-IBIG','PHILHEALTH','TIN','POSITION','DATE HIRED','EMPLOYMENT TYPE','DAILY RATE','ASSIGNED BRANCH','GOV. ID','PHOTO'];
 function fid(u){ const m=String(u).match(/[-\w]{25,}/); return m?m[0]:''; }
 function thumb(u,sz){ const id=fid(u); return id?`https://drive.google.com/thumbnail?id=${id}&sz=w${sz}`:''; }
 function fallback(img){ img.outerHTML='<div class="hint">Image could not be displayed</div>'; }
@@ -313,7 +314,7 @@ async function doSearch(){
     if(!r.rows.length){ $('results').innerHTML='<div class="card">No employee found.</div>'; return; }
     window._rows=r.rows;
     $('results').innerHTML=r.rows.map((x,i)=>{
-      const t=thumb(x[24],200);
+      const t=thumb(x[25],200);
       return `<div class="res" onclick="detail(${i})">${t?`<img class="avatar" src="${t}" alt="">`:'<div class="avatar"></div>'}<div><b>${esc(x[1])}, ${esc(x[2])} ${esc(x[3])}</b><br><small>${esc(x[0])} · ${esc(x[19])}</small></div></div>`;
     }).join('');
   }catch(e){ $('results').innerHTML='<div class="card">Error: '+esc(e.message)+'</div>'; }
@@ -321,12 +322,12 @@ async function doSearch(){
 function detail(i){
   const x=window._rows[i];
   const links=v=>String(v).split('\n').filter(Boolean).map((u,k)=>`<a href="${esc(u)}" target="_blank" rel="noopener">Open ${k+1}</a>`).join(' · ');
-  const selfie=thumb(x[24],600);
-  const gov=String(x[23]).split('\n').filter(Boolean).map(u=>thumb(u,800)).filter(Boolean);
+  const selfie=thumb(x[25],600);
+  const gov=String(x[24]).split('\n').filter(Boolean).map(u=>thumb(u,800)).filter(Boolean);
   $('results').innerHTML=`<div class="card"><h2>${esc(x[0])}</h2>`+
     (selfie?`<img class="photo" src="${selfie}" alt="Employee photo" onerror="fallback(this)">`:'')+
-    `<div class="det">`+LABELS.slice(0,23).map((l,k)=>`<div>${l}</div><div>${esc(x[k])}</div>`).join('')+
-    `<div>GOV. ID</div><div>${links(x[23])}</div></div>`+
+    `<div class="det">`+LABELS.slice(0,24).map((l,k)=>`<div>${l}</div><div>${esc(x[k])}</div>`).join('')+
+    `<div>GOV. ID</div><div>${links(x[24])}</div></div>`+
     (gov.length?`<h2 style="margin-top:16px">Government ID</h2><div class="gimgs">${gov.map(g=>`<img src="${g}" alt="Gov ID" onerror="fallback(this)">`).join('')}</div>`:'')+
     `<div style="height:8px"></div><button class="btn alt" onclick="doSearch()">‹ Back to results</button></div>`;
   window.scrollTo(0,0);
